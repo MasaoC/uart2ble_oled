@@ -1,0 +1,1 @@
+UART -> XIAO(ESP32C3) -> SSD1306 and BLE.
