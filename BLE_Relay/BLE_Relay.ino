@@ -44,16 +44,18 @@ static void notifyCallback(
   uint8_t* pData,
   size_t length,
   bool isNotify) {
-    Serial.print("Notify callback for characteristic ");
+    /*Serial.print("Notify callback for characteristic ");
     Serial.print(pBLERemoteCharacteristic->getUUID().toString().c_str());
     Serial.print(" of data length ");
     Serial.println(length);
     Serial.print("data: ");
     Serial.write(pData, length);
     Serial.println();
-
+    */
     pTxCharacteristic->setValue(pData,length);
     pTxCharacteristic->notify();
+
+    Serial.write(pData, length);
 }
 
 class MyClientCallback : public BLEClientCallbacks {
@@ -192,7 +194,7 @@ class MyCallbacks: public BLECharacteristicCallbacks {
 
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(38400);
   Serial.println("Starting Arduino BLE Client application...");
 
 
@@ -269,7 +271,7 @@ void loop() {
   // with the current time since boot.
   if (connected) {
     String newValue = "Time since boot: " + String(millis()/1000);
-    Serial.println(newValue);
+    //Serial.println(newValue);
     
     // Set the characteristic's value to be the array of bytes that is actually a string.
     //pRemoteCharacteristic->writeValue(newValue.c_str(), newValue.length());

@@ -1,3 +1,4 @@
+//For ESP32C3 XIAO
 #include <BLEDevice.h>
 #include <BLEServer.h>
 #include <BLEUtils.h>
@@ -81,7 +82,7 @@ unsigned long last_message_time = 0;//最後にUART受信した時刻 ms
 
   class MyCallbacks: public BLECharacteristicCallbacks {
       void onWrite(BLECharacteristic *pCharacteristic) {
-        std::string rxValue = pCharacteristic->getValue();
+        String rxValue = pCharacteristic->getValue();
 
         if (rxValue.length() > 0) {
           Serial.println("*********");
@@ -98,7 +99,7 @@ unsigned long last_message_time = 0;//最後にUART受信した時刻 ms
           //char valcharc[10];
           //dtostrf(val, 5, 2, valcharc);
           //valchar[5] = ENDOFDATA;
-          pTxCharacteristic->setValue(std::to_string(val));
+          pTxCharacteristic->setValue(String(val));
           pTxCharacteristic->notify();
           last_ble_notifytime = millis();
         }
