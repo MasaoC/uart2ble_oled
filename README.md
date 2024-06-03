@@ -8,4 +8,9 @@
 - リレー以外にはOLEDに表示する機能もついています。UART -> XIAO(ESP32C3) -> SSD1306 and BLE.
 - 受信のUARTは38400Baud. OLED(SSD1306)とはI2Cで通信する。
 - UARTで受信したデータのうち、#で始まる文字列のみを、BLE Nordic UARTで送信する。
+- MacBookAirで受信してPythonでグラフ化するコードも公開しています。[ble_plotter](https://github.com/MasaoC/ble_plotter)はこちら。
 - 詳細情報が欲しい方はメールからどうぞ。
+
+## 仕様書
+- [BLEOLED_nrf52840](https://github.com/MasaoC/uart2ble_oled/blob/main/doc/UARTtoOLED%E5%9F%BA%E6%9D%BFv1%20%E4%BB%95%E6%A7%98%E6%9B%B8.pdf)
+- [BLEOLEDv2_ESP32C3](https://github.com/MasaoC/uart2ble_oled/blob/main/doc/UARTtoOLED%E5%9F%BA%E6%9D%BFv2%20%E4%BB%95%E6%A7%98%E6%9B%B8.pdf)
