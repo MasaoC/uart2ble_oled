@@ -13,6 +13,8 @@
 #define OLED_RESET -1 
 #define BAUD_RATE 38400
 
+
+bool display_working = false;
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 //Define two Serial devices mapped to the two internal UARTs
@@ -108,11 +110,13 @@ unsigned long last_message_time = 0;//最後にUART受信した時刻 ms
 #endif
 
 void printOLED(const char* chars){
+  if(display_working){
     display.clearDisplay();
     display.setCursor(0,0);
     display.setTextSize(1);
     display.println(chars);
     display.display();
+  }
 }
 
 
@@ -134,6 +138,7 @@ void checkUsage(){
 
 
 void setup() {
+  Serial.begin(BAUD_RATE);
   #ifdef BLE
     // Create the BLE Device
     BLEDevice::init(BLE_NAME);
@@ -172,22 +177,37 @@ void setup() {
     pAdvertising->setScanResponse(true);
     pAdvertising->setMinPreferred(0x6);//iPhone おまじない
     pAdvertising->setMinPreferred(0x12);//iPhone おまじない
+    Serial.println("ble advertising");
     BLEDevice::startAdvertising();
   #endif
 
-  display.begin(SSD1306_SWITCHCAPVCC,0x3C); 
-  display.setTextColor(WHITE);  
-  display.clearDisplay();
-  display.setCursor(0,0);
-  display.setTextSize(2);
-  display.println("HELLO!");
-  display.setCursor(0,16);
-  display.println("ALBATROSS!");
-  display.display(); 
 
-  Serial.begin(BAUD_RATE);
-  Serial.println("display");
-  Serial.println("ble advertising");
+  Wire.begin();
+  Wire.beginTransmission(0x3C);
+  int statusI2C = Wire.endTransmission();
+  if( statusI2C != 0 ){
+    Serial.print( 0x3C );
+    Serial.println("I2C 0x3C not found");
+    display_working = false;
+  }
+  if(display_working)
+    display_working = display.begin(SSD1306_SWITCHCAPVCC,0x3C);
+  
+  if(display_working){
+    display.setTextColor(WHITE);  
+    display.clearDisplay();
+    display.setCursor(0,0);
+    display.setTextSize(2);
+    display.println("HELLO!");
+    display.setCursor(0,16);
+    display.println("ALBATROSS!");
+    display.display(); 
+
+    Serial.println("display SD1306 success");
+  }else{
+    Serial.println("SD1306 OLED not found.");
+  }
+
   MySerial1.begin(BAUD_RATE, SERIAL_8N1, D10, D9);
   MySerial0.begin(BAUD_RATE, SERIAL_8N1, -1, -1);//D10=RX, D9=TX dummy 余りpin。
   Serial.println("hserial");
@@ -229,6 +249,9 @@ void decode_print_buff(int rlen){
       return;
     }
   #endif
+  if(!display_working){
+    return;
+  }
 
   char firstline[rlen+1];//終了文字('\0')のために+1
   char secondline[rlen+1];//まだ2行目の長さは不明のため、同じ長さ確保。
@@ -318,7 +341,7 @@ void loop() {
   update_ble();
 
   //NO SIGNAL ...
-  if(!RXisUsed && !D10isUsed){
+  if(!RXisUsed && !D10isUsed && display_working){
     display.clearDisplay();
     display.setCursor(0,0);
     display.setTextSize(2);

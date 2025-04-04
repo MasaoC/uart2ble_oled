@@ -4,10 +4,10 @@
  * author unknown
  * updated by chegewara
  */
+#include <BLE2902.h>
 #include <BLEDevice.h>
 #include <BLEServer.h>
 #include <BLEUtils.h>
-#include <BLE2902.h>
 
 //#include "BLEScan.h"
 
@@ -105,9 +105,8 @@ bool connectToServer() {
 
     // Read the value of the characteristic.
     if(pRemoteCharacteristic->canRead()) {
-      std::string value = pRemoteCharacteristic->readValue();
       Serial.print("The characteristic value was: ");
-      Serial.println(value.c_str());
+      Serial.println(pRemoteCharacteristic->readValue().c_str());
     }
 
     if(pRemoteCharacteristic->canNotify())
@@ -167,7 +166,7 @@ class MyServerCallbacks: public BLEServerCallbacks {
 
 class MyCallbacks: public BLECharacteristicCallbacks {
     void onWrite(BLECharacteristic *pCharacteristic) {
-      std::string rxValue = pCharacteristic->getValue();
+      String rxValue = pCharacteristic->getValue();
 
       if (rxValue.length() > 0) {
         Serial.println("*********");
@@ -184,7 +183,7 @@ class MyCallbacks: public BLECharacteristicCallbacks {
         //char valcharc[10];
         //dtostrf(val, 5, 2, valcharc);
         //valchar[5] = ENDOFDATA;
-        pTxCharacteristic->setValue(std::to_string(val));
+        pTxCharacteristic->setValue(String(val,2));
         pTxCharacteristic->notify();
         //last_ble_notifytime = millis();
       }
@@ -248,7 +247,13 @@ void setup() {
   pBLEScan->setInterval(1349);
   pBLEScan->setWindow(449);
   pBLEScan->setActiveScan(true);
-  pBLEScan->start(5, false);
+
+  BLEScanResults* foundDevices = pBLEScan->start(5, false);
+  Serial.print("Devices found: ");
+  Serial.println(foundDevices->getCount());
+  Serial.println("Scan done!");
+  pBLEScan->clearResults();   // delete results fromBLEScan buffer to release memory
+  delay(2000);
 } // End of setup.
 
 
@@ -281,5 +286,5 @@ void loop() {
     BLEDevice::getScan()->start(0);  // this is just example to start scan after disconnect, most likely there is better way to do it in arduino
   }
   
-  delay(1000); // Delay a second between loops.
+  delay(10000); // Delay a second between loops.
 } // End of loop
